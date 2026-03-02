@@ -14,6 +14,12 @@ public class VideoController {
 
     @PostMapping("/processar")
     public String processar(@RequestBody VideoRequest request) {
+
+        if (request.getDuracaoCorte() == null || request.getDuracaoCorte()<=0) {
+            videoService.baixarAsync(request.getUrl());
+            return "Download iniciado sem corte!";
+        }
+
         videoService.baixarECortarAsync(request.getUrl(), request.getDuracaoCorte());
         return "Download e corte iniciados! Verifique a pasta de vídeos depois.";
     }

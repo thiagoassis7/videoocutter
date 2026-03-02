@@ -16,17 +16,33 @@ public class VideoService {
         this.cortarService = cortarService;
     }
 
+    @Async
+    public void baixarAsync(String url ) {
+        try {
+            String titulo = downloadService.obterTitulo(url);
+             downloadService.baixarVideo( url,titulo);
+            System.out.println("Download concluído!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Async
     public void baixarECortarAsync(String url, int duracaoCorte) {
         try {
-            // 1. Baixa o vídeo
-            String caminhoVideo = downloadService.baixarVideo(url);
+            // 1. Pega título e baixa
+            String titulo = downloadService.obterTitulo(url);
+            String caminhoVideo = downloadService.baixarVideo(url,titulo);
 
-            // 2. Corta o vídeo em partes
-            List<String> cortes = cortarService.cortarVideo(caminhoVideo, duracaoCorte);
+            // 2. Corta vídeo
+            List<String> cortes = cortarService.cortarVideo(caminhoVideo, titulo, duracaoCorte);
 
-            System.out.println("Processo finalizado! Cortes: " + cortes);
+            // 3. Comprime cortes
+            for (String corte : cortes) {
+                cortarService.comprimirVideo(corte);
+            }
+
+            System.out.println("\n🎉 Processo concluído!");
         } catch (Exception e) {
             e.printStackTrace();
         }
